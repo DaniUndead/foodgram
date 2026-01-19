@@ -102,7 +102,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             request, pk, ShoppingCart, ShoppingCartSerializer
         )
 
-    @action(detail=False, methods=['get'])
+@action(detail=False, methods=['get'])
     def download_shopping_cart(self, request):
         """Скачивание списка покупок в .txt файле."""
         user = request.user
@@ -128,7 +128,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         response = HttpResponse(shopping_list, content_type='text/plain')
         filename = f'{user.username}_shopping_list.txt'
-        response['Content-Disposition'] = f'attachment; filename={filename}'
+
+        response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
         return response
 
 
