@@ -39,5 +39,11 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://web:8000/"
+  "overrides": {
+    "react-meta-tags": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
+  },
+  "proxy": "http://web:8080/"
 }
