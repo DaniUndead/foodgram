@@ -99,7 +99,10 @@ class Recipe(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    """Промежуточная модель для связи Рецепт-Ингредиент с указанием количества."""
+    """
+    Промежуточная модель для связи Рецепт-Ингредиент
+    с указанием количества.
+    """
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
