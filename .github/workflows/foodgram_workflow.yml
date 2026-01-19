@@ -62,7 +62,6 @@ jobs:
         with:
           context: ./backend/
           push: true
-          # ИСПРАВЛЕНО: kittygram -> foodgram
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
 
   build_frontend_and_push_to_docker_hub:
@@ -84,7 +83,6 @@ jobs:
         with:
           context: ./frontend/
           push: true
-          # ИСПРАВЛЕНО: kittygram -> foodgram
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
 
   build_gateway_and_push_to_docker_hub:
@@ -106,7 +104,6 @@ jobs:
         with:
           context: ./nginx/
           push: true
-          # ИСПРАВЛЕНО: kittygram -> foodgram
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_gateway:latest
 
   deploy:
@@ -126,7 +123,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           source: "docker-compose.production.yml"
-          target: "foodgram_project" # Можно переименовать папку для порядка
+          target: "foodgram_project"
 
       - name: Executing remote ssh commands to deploy
         uses: appleboy/ssh-action@master
