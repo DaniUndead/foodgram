@@ -102,7 +102,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             request, pk, ShoppingCart, ShoppingCartSerializer
         )
 
-@action(detail=False, methods=['get'])
+    @action(detail=False, methods=['get'])
     def download_shopping_cart(self, request):
         """Скачивание списка покупок в .txt файле."""
         user = request.user
