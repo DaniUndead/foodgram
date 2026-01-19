@@ -20,6 +20,6 @@ urlpatterns = [
     path('users/<int:pk>/subscribe/',
          SubscriptionViewSet.as_view(
              {'post': 'subscribe', 'delete': 'subscribe'}
-            ),
+         ),
          name='subscribe'),
 ]
