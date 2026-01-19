@@ -4,6 +4,7 @@ import { Switch, Route, useHistory, Redirect } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { Header, Footer, ProtectedRoute } from "./components";
 import api from "./api";
+import styles from "./styles.module.css";
 
 import {
   About,
@@ -293,6 +294,7 @@ function App() {
             </Route>
 
             <Route exact path="/about">
+              {/* <NotFound /> */}
               <About component={About} />
             </Route>
 
@@ -301,6 +303,7 @@ function App() {
             </Route>
 
             <Route exact path="/technologies">
+              {/* <NotFound /> */}
               <Technologies component={Technologies}/>
             </Route>
 
