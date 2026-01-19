@@ -1,33 +1,10 @@
 .loading {
-  position: fixed;
-  align-items: center;
+  min-height: 100vh;
+  display: flex;
   justify-content: center;
-  height: 100vh;
-  width: 100%;
-  line-height: 100vh;
-  text-align: center;
-}
-
-.menuButton {
-  width: 30px;
-  height: 30px;
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  cursor: pointer;
-  display: none;
-}
-
-.menuButton img {
-  width: 100%;
-}
-
-.appMenuToggled {
-  transform: translateX(200px);
-}
-
-@media screen and (max-width: 770px) {
-  .menuButton {
-    display: block
-  }
+  align-items: center;
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: bold;
+  color: #000;
 }

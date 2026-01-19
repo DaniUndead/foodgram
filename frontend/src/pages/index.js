@@ -1,25 +1,16 @@
-import Main from './main'
-import SignIn from './signin'
-import SignUp from './signup'
-import SingleCard from './single-card'
-import RecipeEdit from './recipe-edit'
-import Cart from './cart'
-import Favorites from './favorites'
-import Subscriptions from './subscriptions'
-import RecipeCreate from './recipe-create'
-import User from './user'
-import ChangePassword from './change-password'
-
-export {
-  Main,
-  SignIn,
-  SingleCard,
-  SignUp,
-  RecipeEdit,
-  Cart,
-  Favorites,
-  Subscriptions,
-  RecipeCreate,
-  User,
-  ChangePassword
-}
+export { default as Cart } from './cart';
+export { default as Favorites } from './favorites';
+export { default as ChangePassword } from './change-password';
+export { default as Main } from './main';
+export { default as SignIn } from './signin';
+export { default as Subscriptions } from './subscriptions';
+export { default as SingleCard } from './single-card';
+export { default as SignUp } from './signup';
+export { default as RecipeEdit } from './recipe-edit';
+export { default as RecipeCreate } from './recipe-create';
+export { default as User } from './user';
+export { default as NotFound } from './not-found';
+export { default as UpdateAvatar } from './update-avatar';
+export { default as ResetPassword } from './reset-password';
+export { default as About } from './about';
+export { default as Technologies } from './technologies';

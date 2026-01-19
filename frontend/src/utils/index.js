@@ -1,16 +1,11 @@
-import hexToRgba from './hex-to-rgba'
-import { useForm, useFormWithValidation } from './validation'
-import { useTags } from './use-tags'
-import useRecipes from './use-recipes'
-import useRecipe from './use-recipe'
-import useSubscriptions from './use-subscriptions'
+export const hexToRgba = (hex, alpha) => {
+  var r = parseInt(hex.slice(1, 3), 16),
+    g = parseInt(hex.slice(3, 5), 16),
+    b = parseInt(hex.slice(5, 7), 16);
 
-export {
-  hexToRgba,
-  useForm,
-  useFormWithValidation,
-  useTags,
-  useRecipes,
-  useRecipe,
-  useSubscriptions
-}
+  if (alpha) {
+    return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+  } else {
+    return "rgb(" + r + ", " + g + ", " + b + ")";
+  }
+};
