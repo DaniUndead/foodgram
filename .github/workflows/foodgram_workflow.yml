@@ -84,7 +84,13 @@ jobs:
       run: |
         cd frontend/
         npm run test
-        
+
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      if: failure()
+      timeout-minutes: 15
+
+
   build_frontend_and_push_to_docker_hub:
     name: Push frontend Docker image to DockerHub
     runs-on: ubuntu-latest
@@ -127,11 +133,6 @@ jobs:
           context: ./nginx/
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_gateway:latest
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: failure()
-        timeout-minutes: 15
 
   deploy:
     runs-on: ubuntu-latest
