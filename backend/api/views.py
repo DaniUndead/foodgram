@@ -2,14 +2,13 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import mixins, status, viewsets, filters
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .filters import RecipeFilter
-from .models import (Favorite, Ingredient, Recipe,
-                     ShoppingCart, Tag, User, ShoppingCart)
+from .models import Favorite, Ingredient, Recipe, ShoppingCart, Tag, User
 from .pagination import CustomPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (FavoriteSerializer, IngredientSerializer,
@@ -42,7 +41,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorOrReadOnly,)
 
     def get_queryset(self):
-        """Оптимизированный запрос с предварительной загрузкой связанных полей."""
+        """Оптимизированный запрос с предварительной загрузкой."""
         queryset = Recipe.objects.select_related('author').prefetch_related(
             'tags', 'ingredients'
         )
@@ -75,7 +74,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             model.objects.create(user=user, recipe=recipe)
-            serializer = serializer_class(recipe, context={'request': request})
+            serializer = serializer_class(
+                recipe, context={'request': request}
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         obj = model.objects.filter(user=user, recipe=recipe)
@@ -107,7 +108,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         if not user.shopping_cart.exists():
             return Response(
-                {'errors': 'Корзина пуста'}, status=status.HTTP_400_BAD_REQUEST
+                {'errors': 'Корзина пуста'},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
         ingredients = Ingredient.objects.filter(
@@ -171,11 +173,13 @@ class SubscriptionViewSet(viewsets.GenericViewSet, mixins.ListModelMixin):
     def get_queryset(self):
         """
         Возвращаем пользователей, на которых подписан текущий юзер.
-        Оптимизируем запрос, подгружая рецепты (т.к. они обычно отображаются в подписках).
+        Оптимизируем запрос, подгружая рецепты.
         """
         return User.objects.filter(
             following__user=self.request.user
-        ).prefetch_related('recipes', 'recipes__tags', 'recipes__ingredients')
+        ).prefetch_related(
+            'recipes', 'recipes__tags', 'recipes__ingredients'
+        )
 
     @action(detail=True, methods=['post', 'delete'])
     def subscribe(self, request, pk=None):
