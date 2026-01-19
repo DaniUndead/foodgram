@@ -79,16 +79,11 @@ jobs:
     - name: Install dependencies
       run: |
         cd frontend/
-        npm ci
+        npm ci --legacy-peer-deps
     - name: Test frontend
       run: |
         cd frontend/
         npm run test
-
-    - name: Setup tmate session (test)
-      if: ${{ failure() }}
-      uses: mxschmitt/action-tmate@v3
-
 
   build_frontend_and_push_to_docker_hub:
     name: Push frontend Docker image to DockerHub
