@@ -1,7 +1,7 @@
 import django_filters
 from django_filters import rest_framework as filters
 
-from .models import Recipe
+from ..recipes.models import Recipe
 
 
 class RecipeFilter(filters.FilterSet):
@@ -28,16 +28,16 @@ class RecipeFilter(filters.FilterSet):
         model = Recipe
         fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
 
-    def filter_is_favorited(self, queryset, name, value):
+    def filter_is_favorited(self, recipes, name, value):
         """Фильтрация по избранным рецептам."""
         user = self.request.user
         if value and user.is_authenticated:
-            return queryset.filter(favorites__user=user)
-        return queryset
+            return recipes.filter(favorites__user=user)
+        return recipes
 
-    def filter_is_in_shopping_cart(self, queryset, name, value):
+    def filter_is_in_shopping_cart(self, recipes, name, value):
         """Фильтрация по рецептам в корзине."""
         user = self.request.user
         if value and user.is_authenticated:
-            return queryset.filter(shopping_carts__user=user)
-        return queryset
+            return recipes.filter(shopping_carts__user=user)
+        return recipes
