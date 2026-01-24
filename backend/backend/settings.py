@@ -29,7 +29,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'recipes',
-    'api',
     'api.apps.ApiConfig',
 ]
 
