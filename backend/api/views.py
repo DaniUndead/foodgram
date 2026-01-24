@@ -45,10 +45,10 @@ class UserViewSet(DjoserUserViewSet):
     pagination_class = PageNumberPagination
 
     @action(
-            detail=False,
-            methods=['get'],
-            permission_classes=[IsAuthenticated, IsAuthenticatedOrReadOnly]
-        )
+        detail=False,
+        methods=['get'],
+        permission_classes=[IsAuthenticated, IsAuthenticatedOrReadOnly]
+    )
     def subscriptions(self, request):
         """Список подписок текущего пользователя."""
         user = request.user
@@ -64,10 +64,10 @@ class UserViewSet(DjoserUserViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(
-            detail=True,
-            methods=['post', 'delete'],
-            permission_classes=[IsAuthenticated, IsAuthenticatedOrReadOnly]
-        )
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated, IsAuthenticatedOrReadOnly]
+    )
     def subscribe(self, request, id=None):
         """Подписка/отписка."""
         user = request.user
@@ -142,30 +142,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
-            detail=True,
-            methods=['post', 'delete'],
-            permission_classes=[IsAuthenticated, IsAuthenticatedOrReadOnly]
-        )
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated, IsAuthenticatedOrReadOnly]
+    )
     def favorite(self, request, pk=None):
         if request.method == 'POST':
             return self._add_to_list(Favorite, request.user, pk)
         return self._delete_from_list(Favorite, request.user, pk)
 
     @action(
-            detail=True,
-            methods=['post', 'delete'],
-            permission_classes=[IsAuthenticated, IsAuthenticatedOrReadOnly]
-        )
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated, IsAuthenticatedOrReadOnly]
+    )
     def shopping_cart(self, request, pk=None):
         if request.method == 'POST':
             return self._add_to_list(ShoppingCart, request.user, pk)
         return self._delete_from_list(ShoppingCart, request.user, pk)
 
     @action(
-            detail=False,
-            methods=['post', 'delete'],
-            permission_classes=[IsAuthenticated, IsAuthenticatedOrReadOnly]
-        )
+        detail=False,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated, IsAuthenticatedOrReadOnly]
+    )
     def download_shopping_cart(self, request):
         user = request.user
 

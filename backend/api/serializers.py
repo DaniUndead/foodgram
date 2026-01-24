@@ -133,9 +133,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Список не может быть пустым.')
 
         ids = [
-                    item.id if hasattr(item, 'id') else item['ingredient'].id
-                    for item in items
-                ]
+                item.id if hasattr(item, 'id') else item['ingredient'].id
+                for item in items
+            ]
 
         if len(ids) != len(set(ids)):
             from collections import Counter
