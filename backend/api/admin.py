@@ -8,18 +8,15 @@ admin.site.unregister(Group)
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'slug', 'color')
+    list_display = ('id', 'name', 'slug')
     search_fields = ('name', 'slug')
     list_filter = ('name',)
-    empty_value_display = '-пусто-'
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'measurement_unit')
-    search_fields = ('name',)
-    list_filter = ('measurement_unit',)
-    empty_value_display = '-пусто-'
+    list_display = ('name')
+    search_fields = ('name', 'unit')
 
 
 class RecipeIngredientInline(admin.TabularInline):
@@ -31,11 +28,10 @@ class RecipeIngredientInline(admin.TabularInline):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author', 'pub_date', 'count_favorites')
+    list_display = ('name', 'author', 'pub_date')
     list_filter = ('author', 'name', 'tags')
     search_fields = ('name', 'author__username')
     inlines = (RecipeIngredientInline,)
-    empty_value_display = '-пусто-'
 
     def count_favorites(self, obj):
         """Показывает, сколько раз рецепт добавили в избранное."""
