@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserUserViewSet
 from recipes.models import (Favorite, Follow, Ingredient, Recipe, ShoppingCart,
                             Tag, User)
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
@@ -38,7 +38,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 class UserViewSet(DjoserUserViewSet):
     """
-    Вьюсет для пользователей. 
+    Вьюсет для пользователей.
     Наследуется от Djoser, поэтому методы me, set_password и create уже есть.
     Добавляем только работу с подписками.
     """

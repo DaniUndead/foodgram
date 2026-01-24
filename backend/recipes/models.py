@@ -89,7 +89,7 @@ class Recipe(models.Model):
         'Время приготовления (минуты)',
         validators=[
             MinValueValidator(
-                MIN_VALUE_TIME, 
+                MIN_VALUE_TIME,
                 message=f'Минимум {MIN_VALUE_TIME} минута!'
             )
         ]
@@ -129,7 +129,7 @@ class RecipeIngredient(models.Model):
         'Количество',
         validators=[
             MinValueValidator(
-                MIN_VALUE_AMOUNT, 
+                MIN_VALUE_AMOUNT,
                 message=f'Минимум {MIN_VALUE_AMOUNT}!'
             )
         ]
@@ -243,7 +243,7 @@ class Follow(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='following', 
+        related_name='following',
         verbose_name='Автор'
     )
 
