@@ -172,6 +172,10 @@ class UserRecipeRelation(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
     )
+    created_at = models.DateTimeField(
+        'Дата добавления',
+        auto_now_add=True
+    )
 
     class Meta:
         abstract = True
