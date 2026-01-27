@@ -1,18 +1,19 @@
+from backend.api import serializers
 from django.db.models import Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserUserViewSet
-from recipes.models import (Favorite, Follow, Ingredient, Recipe, ShoppingCart,
-                            Tag, User)
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
+from recipes.models import (Favorite, Follow, Ingredient, Recipe, ShoppingCart,
+                            Tag, User)
 from .filters import RecipeFilter
-from .pagination import PageNumberPagination
+from .pagination import NewPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientSerializer, RecipeReadSerializer,
                           RecipeShortSerializer, RecipeWriteSerializer,
@@ -42,7 +43,7 @@ class UserViewSet(DjoserUserViewSet):
     Наследуется от Djoser, поэтому методы me, set_password и create уже есть.
     Добавляем только работу с подписками.
     """
-    pagination_class = PageNumberPagination
+    pagination_class = NewPageNumberPagination
 
     @action(
         detail=False,
@@ -56,12 +57,12 @@ class UserViewSet(DjoserUserViewSet):
             'recipes'
         )
         pages = self.paginate_queryset(queryset)
-        serializer = UserWithRecipesSerializer(
+        return self.get_paginated_response(UserWithRecipesSerializer(
             pages,
             many=True,
             context={'request': request}
-        )
-        return self.get_paginated_response(serializer.data)
+        ).data)
+
 
     @action(
         detail=True,
@@ -72,33 +73,29 @@ class UserViewSet(DjoserUserViewSet):
         """Подписка/отписка."""
         user = request.user
 
+        if request.method == 'DELETE':
+            get_object_or_404(Follow, user=user, author_id=id).delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
         author = get_object_or_404(User, pk=id)
 
-        if request.method == 'POST':
-            if user == author:
-                return Response(
-                    {'errors': 'Нельзя подписаться на самого себя'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            obj, created = Follow.objects.get_or_create(
-                user=user, author=author
-            )
-            if not created:
-                return Response(
-                    {'errors': f'Вы уже подписаны на {author.username}'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            return Response(
-                UserWithRecipesSerializer(
-                    author, context={'request': request}
-                ).data,
-                status=status.HTTP_201_CREATED
+        if user == author:
+            raise serializers.ValidationError(
+                'Нельзя подписаться на самого себя'
             )
 
-        get_object_or_404(Follow, user=user, author=author).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        obj, created = Follow.objects.get_or_create(user=user, author=author)
+
+        if not created:
+            raise serializers.ValidationError(
+                f'Вы уже подписаны на {author.username}'
+            )
+
+        serializer = UserWithRecipesSerializer(
+            author,
+            context={'request': request}
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -107,7 +104,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         'tags', 'ingredients'
     )
     permission_classes = (IsAuthorOrReadOnly, IsAuthenticatedOrReadOnly)
-    pagination_class = PageNumberPagination
+    pagination_class = NewPageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
@@ -120,25 +117,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     def _add_to_list(self, model, user, pk):
-        """Вспомогательный метод добавления в избранное/корзину."""
         recipe = get_object_or_404(Recipe, pk=pk)
         obj, created = model.objects.get_or_create(user=user, recipe=recipe)
 
         if not created:
-            return Response(
-                {'errors': 'Рецепт уже добавлен'},
-                status=status.HTTP_400_BAD_REQUEST
+            model_name = model._meta.verbose_name.capitalize()
+            raise serializers.ValidationError(
+                f'Рецепт "{recipe.name}" уже добавлен в {model_name}'
             )
 
-        return Response(
-            RecipeShortSerializer(recipe).data,
-            status=status.HTTP_201_CREATED
-        )
+        serializer = RecipeShortSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def _delete_from_list(self, model, user, pk):
-        """Вспомогательный метод удаления."""
-        recipe = get_object_or_404(Recipe, pk=pk)
-        get_object_or_404(model, user=user, recipe=recipe).delete()
+        get_object_or_404(model, user=user, recipe_id=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
@@ -177,18 +169,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
             amount=Sum('recipe_ingredients__amount')
         ).order_by('name')
 
-        if not ingredients:
-            pass
-
         recipes = Recipe.objects.filter(shopping_cart__user=user)
 
         content = generate_shopping_list(user, ingredients, recipes)
 
-        response = FileResponse(
+        return FileResponse(
             content,
-            content_type='text/plain'
+            content_type='text/plain',
+            as_attachment=True,
+            filename='shopping_list.txt'
         )
-        response['Content-Disposition'] = (
-            'attachment; filename="shopping_list.txt"'
-        )
-        return response

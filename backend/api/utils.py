@@ -10,12 +10,11 @@ def generate_shopping_list(user, ingredients, recipes):
         f'{"="*30}\n'
     )
 
-    ingredients_lines = []
-    for idx, ing in enumerate(ingredients, 1):
-        name = ing['name'].capitalize()
-
-        line = f'{idx}. {name}: {ing["amount"]} {ing["measurement_unit"]}'
-        ingredients_lines.append(line)
+    ingredients_lines = [
+        f'{index}. {ingredient["name"].capitalize()}: '
+        f'{ingredient["amount"]} {ingredient["measurement_unit"]}'
+        for index, ingredient in enumerate(ingredients, start=1)
+    ]
 
     recipes_header = f'\n\n{"="*30}\nКупить для рецептов:\n'
     recipes_lines = [

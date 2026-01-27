@@ -1,8 +1,12 @@
+from collections import Counter
 from django.db import transaction
 from djoser.serializers import UserSerializer as DjoserUserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from rest_framework import serializers
+
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+
+MIN_VALUE = 1
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -10,7 +14,7 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('id', 'name', 'slug', 'color')
+        fields = ('id', 'slug', 'color')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -32,7 +36,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
     )
-    amount = serializers.IntegerField(min_value=1)
+    amount = serializers.IntegerField(MIN_VALUE)
 
     class Meta:
         model = RecipeIngredient
@@ -45,24 +49,19 @@ class UserSerializer(DjoserUserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta(DjoserUserSerializer.Meta):
-        fields = DjoserUserSerializer.Meta.fields + ('is_subscribed', 'avatar')
-        read_only_fields = (
-            'email',
-            'username',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'avatar'
-        )
+        fields = [*DjoserUserSerializer.Meta.fields, 'is_subscribed', 'avatar']
+        read_only_fields = fields
 
-    def get_is_subscribed(self, user):
+    def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if not (request and request.user.is_authenticated):
-            return False
+        user_auth = request and request.user.is_authenticated
 
-        if hasattr(user, 'is_subscribed_annotated'):
-            return user.is_subscribed_annotated
-        return user.follower.filter(author=user, user=request.user).exists()
+        return bool(
+            user_auth and (
+                getattr(obj, 'is_subscribed_annotated', False) or
+                obj.follower.filter(user=request.user).exists()
+            )
+        )
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -85,19 +84,19 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             'ingredients', 'tags', 'cooking_time',
             'is_favorited', 'is_in_shopping_cart'
         )
+        read_only_fields = fields
 
     def _is_exists(self, recipe, model_name):
-        """Вспомогательный метод для проверки наличия в Избранном/Корзине."""
         request = self.context.get('request')
-        if not (request and request.user.is_authenticated):
-            return False
+        user_auth = request and request.user.is_authenticated
 
         annotated_attr = f'{model_name}_annotated'
-        if hasattr(recipe, annotated_attr):
-            return getattr(recipe, annotated_attr)
-
-        relation_manager = getattr(recipe, model_name)
-        return relation_manager.filter(user=request.user).exists()
+        return bool(
+            user_auth and (
+                getattr(recipe, annotated_attr, False) or
+                getattr(recipe, model_name).filter(user=request.user).exists()
+            )
+        )
 
     def get_is_favorited(self, recipe):
         return self._is_exists(recipe, 'favorites')
@@ -118,7 +117,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         many=True,
         queryset=Tag.objects.all()
     )
-    cooking_time = serializers.IntegerField(min_value=1)
+    cooking_time = serializers.IntegerField(MIN_VALUE)
 
     class Meta:
         model = Recipe
@@ -138,7 +137,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         ]
 
         if len(ids) != len(set(ids)):
-            from collections import Counter
 
             duplicates = [
                 item for item, count in Counter(ids).items()
@@ -179,16 +177,14 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        ingredients_data = validated_data.pop('recipe_ingredients', None)
-        tags_data = validated_data.pop('tags', None)
+        ingredients_data = validated_data.pop('recipe_ingredients')
+        tags_data = validated_data.pop('tags')
 
         instance = super().update(instance, validated_data)
-        if tags_data is not None:
-            instance.tags.set(tags_data)
 
-        if ingredients_data is not None:
-            instance.recipe_ingredients.all().delete()
-            self.create_ingredients(instance, ingredients_data)
+        instance.tags.set(tags_data)
+        instance.recipe_ingredients.all().delete()
+        self.create_ingredients(instance, ingredients_data)
 
         return instance
 
@@ -202,6 +198,7 @@ class RecipeShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
+        read_only_fields = fields
 
 
 class UserWithRecipesSerializer(UserSerializer):
@@ -213,7 +210,7 @@ class UserWithRecipesSerializer(UserSerializer):
     )
 
     class Meta(UserSerializer.Meta):
-        fields = UserSerializer.Meta.fields + ('recipes', 'recipes_count')
+        fields = [UserSerializer.Meta.fields, 'recipes', 'recipes_count']
         read_only_fields = fields
 
     def get_recipes(self, user):
