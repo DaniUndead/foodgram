@@ -159,7 +159,7 @@ class RecipeIngredient(models.Model):
 
 class UserRecipeRelation(models.Model):
     """
-    Базовая (абстрактная) модель для связей Пользователь <-> Рецепт.
+    Базовая модель для связей Пользователь <-> Рецепт.
     Используется для Избранного и Корзины.
     """
     user = models.ForeignKey(
@@ -176,12 +176,6 @@ class UserRecipeRelation(models.Model):
     class Meta:
         abstract = True
         ordering = ('-created_at',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_favorite'
-            )
-        ]
 
     def __str__(self):
         return f'{self.user} -> {self.recipe}'
@@ -193,6 +187,12 @@ class Favorite(UserRecipeRelation):
     class Meta(UserRecipeRelation.Meta):
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite'
+            )
+        ]
 
 
 class ShoppingCart(UserRecipeRelation):
@@ -201,6 +201,12 @@ class ShoppingCart(UserRecipeRelation):
     class Meta(UserRecipeRelation.Meta):
         verbose_name = 'Корзина покупок'
         verbose_name_plural = 'Корзины покупок'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_shopping_cart'
+            )
+        ]
 
 
 class Follow(models.Model):
