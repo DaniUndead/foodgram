@@ -50,7 +50,7 @@ class RecipeIngredientInline(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'name', 'cooking_time', 'author', 
+        'id', 'name', 'cooking_time', 'author',
         'favorites_count', 'get_ingredients', 'get_tags', 'get_image'
     )
     list_filter = ('author', 'name', 'tags')

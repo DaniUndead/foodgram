@@ -63,7 +63,6 @@ class UserViewSet(DjoserUserViewSet):
             context={'request': request}
         ).data)
 
-
     @action(
         detail=True,
         methods=['post', 'delete'],

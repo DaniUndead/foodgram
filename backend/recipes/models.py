@@ -195,7 +195,6 @@ class ShoppingCart(UserRecipeRelation):
         verbose_name_plural = 'Корзины покупок'
 
 
-
 class Follow(models.Model):
     """Модель для подписок на авторов."""
     user = models.ForeignKey(
