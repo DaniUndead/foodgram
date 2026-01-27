@@ -36,7 +36,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
     )
-    amount = serializers.IntegerField(MIN_VALUE)
+    amount = serializers.IntegerField(min_value=MIN_VALUE)
 
     class Meta:
         model = RecipeIngredient
@@ -117,7 +117,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         many=True,
         queryset=Tag.objects.all()
     )
-    cooking_time = serializers.IntegerField(MIN_VALUE)
+    cooking_time = serializers.IntegerField(min_value=MIN_VALUE)
 
     class Meta:
         model = Recipe
