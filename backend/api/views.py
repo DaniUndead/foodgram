@@ -1,17 +1,18 @@
-from backend.api import serializers
 from django.db.models import Sum
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserUserViewSet
+from recipes.models import (Favorite, Follow, Ingredient, Recipe, ShoppingCart,
+                            Tag, User)
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from recipes.models import (Favorite, Follow, Ingredient, Recipe, ShoppingCart,
-                            Tag, User)
+from backend.api import serializers
+
 from .filters import RecipeFilter
 from .pagination import NewPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
@@ -178,3 +179,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             as_attachment=True,
             filename='shopping_list.txt'
         )
+
+    @action(detail=True, methods=['get'], url_path='get-link')
+    def get_link(self, request, pk=None):
+        recipe = self.get_object()
+        short_code = recipe.get_short_link()
+        link = request.build_absolute_uri(f'/s/{short_code}/')
+        return Response({'short-link': link}, status=status.HTTP_200_OK)
