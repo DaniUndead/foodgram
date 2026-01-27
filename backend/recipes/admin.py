@@ -27,8 +27,8 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'measurement_unit', 'recipes_count')
-    search_fields = ('name', 'measurement_unit')
+    list_display = ('id', 'name', 'recipes_count')
+    search_fields = ('name',)
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
@@ -86,7 +86,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
 
 class BaseRecipeUserAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe', 'created_at')
+    list_display = ('user', 'recipe')
     search_fields = ('user__username', 'recipe__name')
 
 
