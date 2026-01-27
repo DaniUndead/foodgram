@@ -96,7 +96,9 @@ class RecipeReadSerializer(serializers.ModelSerializer):
             user_auth
             and (
                 getattr(recipe, annotated_attr, False)
-                or getattr(recipe, model_name).filter(user=request.user).exists()
+                or getattr(recipe, model_name).filter(
+                    user=request.user
+                ).exists()
             )
         )
 
