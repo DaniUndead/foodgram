@@ -57,7 +57,8 @@ class UserSerializer(DjoserUserSerializer):
         user_auth = request and request.user.is_authenticated
 
         return bool(
-            user_auth and (
+            user_auth
+            and (
                 getattr(obj, 'is_subscribed_annotated', False) or
                 obj.follower.filter(user=request.user).exists()
             )
@@ -92,7 +93,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
         annotated_attr = f'{model_name}_annotated'
         return bool(
-            user_auth and (
+            user_auth 
+            and (
                 getattr(recipe, annotated_attr, False) or
                 getattr(recipe, model_name).filter(user=request.user).exists()
             )
