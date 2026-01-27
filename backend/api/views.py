@@ -1,4 +1,5 @@
 from django.db.models import Sum
+from django.forms import ValidationError
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -10,8 +11,6 @@ from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-
-from backend.api import serializers
 
 from .filters import RecipeFilter
 from .pagination import NewPageNumberPagination
@@ -80,14 +79,14 @@ class UserViewSet(DjoserUserViewSet):
         author = get_object_or_404(User, pk=id)
 
         if user == author:
-            raise serializers.ValidationError(
+            raise ValidationError(
                 'Нельзя подписаться на самого себя'
             )
 
         obj, created = Follow.objects.get_or_create(user=user, author=author)
 
         if not created:
-            raise serializers.ValidationError(
+            raise ValidationError(
                 f'Вы уже подписаны на {author.username}'
             )
 
@@ -122,7 +121,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if not created:
             model_name = model._meta.verbose_name.capitalize()
-            raise serializers.ValidationError(
+            raise ValidationError(
                 f'Рецепт "{recipe.name}" уже добавлен в {model_name}'
             )
 
