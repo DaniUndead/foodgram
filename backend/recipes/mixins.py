@@ -1,5 +1,7 @@
 from django.db.models import Count
 
+from backend.recipes import admin
+
 
 class RecipeCountMixin:
     """Миксин для добавления подсчета количества рецептов."""

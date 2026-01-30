@@ -23,6 +23,7 @@ class IngredientAdmin(admin.ModelAdmin, RecipeCountMixin):
     search_fields = ('name',)
     recipe_relation_name = 'recipe_ingredients'
 
+
 class RecipeIngredientInline(admin.TabularInline):
     """Позволяет добавлять ингредиенты сразу на странице рецепта."""
     model = RecipeIngredient
@@ -94,6 +95,7 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
 class FollowAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'recipe')
     search_fields = ('user__username', 'author__username')
+
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
