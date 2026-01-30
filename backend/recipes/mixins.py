@@ -13,8 +13,8 @@ class RecipeCountMixin:
         )
 
     @admin.display(
-            description='Количество рецептов',
-            ordering='recipes_count_annotated'
-        )
+        description='Количество рецептов',
+        ordering='recipes_count_annotated'
+    )
     def recipes_count(self, obj):
         return obj.recipes_count_annotated
