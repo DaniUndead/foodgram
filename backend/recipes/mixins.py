@@ -1,6 +1,5 @@
+from django.contrib import admin
 from django.db.models import Count
-
-from backend.recipes import admin
 
 
 class RecipeCountMixin:
