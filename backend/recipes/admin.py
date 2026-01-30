@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
 
@@ -96,8 +97,14 @@ class FollowAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'author__username')
 
 
+try:
+    admin.site.unregister(User)
+except admin.sites.NotRegistered:
+    pass
+
+
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(BaseUserAdmin):
     list_display = ('id', 'username', 'email', 'first_name', 'last_name')
     search_fields = ('username', 'email')
     list_filter = ('username', 'email')
