@@ -4,9 +4,11 @@ from django.db import models
 
 User = get_user_model()
 
-
-MAX_LENGTH_NAME = 50
-MAX_LENGTH_SLUG = 100
+MAX_LENGTH_NAME_TAG = 32
+MAX_LENGTH_SLUG_TAG = 32
+MAX_LENGTH_NAME_INGRIDIENT = 128
+MAX_LENGTH_UNIT_INGRIDIENT = 128
+MAX_LENGTH_UNIT_RECIPE = 256
 MAX_LENGTH_UNIT = 200
 MIN_AMOUNT = 1
 MIN_TIME = 1
@@ -15,12 +17,12 @@ MIN_TIME = 1
 class Tag(models.Model):
     name = models.CharField(
         'Название',
-        max_length=MAX_LENGTH_NAME,
+        max_length=MAX_LENGTH_NAME_TAG,
         unique=True,
     )
     slug = models.SlugField(
         'Идентификатор',
-        max_length=MAX_LENGTH_SLUG,
+        max_length=MAX_LENGTH_SLUG_TAG,
         unique=True,
     )
 
@@ -36,12 +38,12 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         'Название',
-        max_length=MAX_LENGTH_NAME,
+        max_length=MAX_LENGTH_NAME_INGRIDIENT,
         unique=True,
     )
     unit = models.CharField(
         'Единица измерения',
-        max_length=MAX_LENGTH_UNIT,
+        max_length=MAX_LENGTH_UNIT_INGRIDIENT,
 
     )
 
@@ -62,7 +64,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         'Название',
-        max_length=MAX_LENGTH_NAME,
+        max_length=MAX_LENGTH_UNIT_RECIPE,
     )
     description = models.TextField(
         'Описание'
