@@ -7,9 +7,9 @@ from django.db import models
 User = get_user_model()
 
 
-MAX_LENGTH_NAME = 10
-MAX_LENGTH_SLUG = 10
-MAX_LENGTH_UNIT = 10
+MAX_LENGTH_NAME = 50
+MAX_LENGTH_SLUG = 100
+MAX_LENGTH_UNIT = 200
 MIN_AMOUNT = 1
 MIN_TIME = 1
 
@@ -60,7 +60,6 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='recipes',
         verbose_name='Автор'
     )
     name = models.CharField(
@@ -105,12 +104,7 @@ class Recipe(models.Model):
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
         ordering = ('-pub_date',)
-
-    def get_short_link(self):
-        byte_id = str(self.id).encode('ascii')
-        return base64.urlsafe_b64encode(byte_id).decode(
-            'ascii'
-        ).replace('=', '')
+        default_related_name = 'recipes'
 
     def __str__(self):
         return self.name
@@ -124,7 +118,6 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe_ingredients',
         verbose_name='Рецепт'
     )
     ingredient = models.ForeignKey(
@@ -152,6 +145,7 @@ class RecipeIngredient(models.Model):
                 name='unique_recipe_ingredient'
             )
         ]
+        default_related_name = 'recipe_ingredients'
 
     def __str__(self):
         return f'{self.recipe.name}: {self.ingredient.name} - {self.amount}'
@@ -165,21 +159,18 @@ class UserRecipeRelation(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name='%(class)s_list',
         verbose_name='Пользователь',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        related_name='%(class)s_list',
         verbose_name='Рецепт',
-    )
-    created_at = models.DateTimeField(
-        'Дата добавления',
-        auto_now_add=True
     )
 
     class Meta:
         abstract = True
-        ordering = ('-created_at',)
 
     def __str__(self):
         return f'{self.user} -> {self.recipe}'
@@ -225,7 +216,7 @@ class Follow(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='follows',
+        related_name='autors',
         verbose_name='Автор'
     )
 

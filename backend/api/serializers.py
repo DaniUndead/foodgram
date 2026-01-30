@@ -3,10 +3,10 @@ from collections import Counter
 from django.db import transaction
 from djoser.serializers import UserSerializer as DjoserUserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from recipes.models import Favorite, Ingredient, Recipe, RecipeIngredient, Tag
 from rest_framework import serializers
 
-MIN_VALUE = 1
+from backend.settings import MIN_VALUE
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -54,10 +54,10 @@ class UserSerializer(DjoserUserSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        user_auth = request and request.user.is_authenticated
 
-        return bool(
-            user_auth
+        return (
+            request
+            and request.user.is_authenticated
             and (
                 getattr(obj, 'is_subscribed_annotated', False)
                 or obj.follower.filter(user=request.user).exists()
@@ -87,23 +87,22 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         )
         read_only_fields = fields
 
-    def _is_exists(self, recipe, model_name):
+    def _is_exists(self, recipe, model_class):
         request = self.context.get('request')
-        user_auth = request and request.user.is_authenticated
+        if not request or request.user.is_anonymous:
+            return False
 
-        annotated_attr = f'{model_name}_annotated'
-        return bool(
-            user_auth
-            and (
-                getattr(recipe, annotated_attr, False)
-                or getattr(recipe, model_name).filter(
-                    user=request.user
-                ).exists()
-            )
+        attr_name = f'is_in_{model_class._meta.model_name}_annotated'
+
+        return (
+            getattr(recipe, attr_name, False)
+            or model_class.objects.filter(
+                user=request.user, recipe=recipe
+            ).exists()
         )
 
     def get_is_favorited(self, recipe):
-        return self._is_exists(recipe, 'favorites')
+        return self._is_exists(recipe, Favorite)
 
     def get_is_in_shopping_cart(self, recipe):
         return self._is_exists(recipe, 'shopping_cart')
@@ -168,16 +167,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             for ingredient_data in ingredients_data
         )
 
-    @transaction.atomic
-    def create(self, validated_data):
-        ingredients_data = validated_data.pop('recipe_ingredients')
-        tags_data = validated_data.pop('tags')
-
-        recipe = super().create(validated_data)
-
-        recipe.tags.set(tags_data)
-        self.create_ingredients(recipe, ingredients_data)
-        return recipe
+    def to_representation(self, instance):
+        return RecipeReadSerializer(instance, context=self.context).data
 
     @transaction.atomic
     def update(self, instance, validated_data):
@@ -191,9 +182,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         self.create_ingredients(instance, ingredients_data)
 
         return instance
-
-    def to_representation(self, instance):
-        return RecipeReadSerializer(instance, context=self.context).data
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):
@@ -214,7 +202,7 @@ class UserWithRecipesSerializer(UserSerializer):
     )
 
     class Meta(UserSerializer.Meta):
-        fields = [UserSerializer.Meta.fields, 'recipes', 'recipes_count']
+        fields = [*UserSerializer.Meta.fields, 'recipes', 'recipes_count']
         read_only_fields = fields
 
     def get_recipes(self, user):
