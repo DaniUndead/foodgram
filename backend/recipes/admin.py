@@ -93,7 +93,7 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
 
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'recipe')
+    list_display = ('id', 'user')
     search_fields = ('user__username', 'author__username')
 
 
