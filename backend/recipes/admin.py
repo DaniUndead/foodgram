@@ -72,7 +72,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
 
 class BaseRecipeUserAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'recipe')
+    list_display = ('id', 'user')
     search_fields = ('user__username', 'recipe__name')
 
 
