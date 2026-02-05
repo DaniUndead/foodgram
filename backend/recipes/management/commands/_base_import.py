@@ -12,18 +12,17 @@ class BaseImportCommand(BaseCommand):
         self.stdout.write(f'Начало импорта из {self.file_name}...')
         try:
             with open(f'data/{self.file_name}', 'r', encoding='utf-8') as f:
-                data = json.load(f)
+                created_objects = self.model.objects.bulk_create(
+                    [self.model(**item) for item in json.load(f)],
+                    ignore_conflicts=True
+                )
 
-                initial_count = self.model.objects.count()
+            self.stdout.write(self.style.SUCCESS(
+                f'Успешно! Файл: {self.file_name}. '
+                f'Обработано записей: {len(created_objects)}'
+            ))
 
-                objects = [self.model(**item) for item in data]
-                self.model.objects.bulk_create(objects, ignore_conflicts=True)
-
-                created_count = self.model.objects.count() - initial_count
-
-                self.stdout.write(self.style.SUCCESS(
-                    f'Успешно! Файл: {self.file_name}. '
-                    f'Добавлено новых записей: {created_count}'
-                ))
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Ошибка при импорте: {e}'))
+            self.stdout.write(self.style.ERROR(
+                f'Ошибка при импорте файла {self.file_name}: {e}'
+            ))
