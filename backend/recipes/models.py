@@ -1,15 +1,15 @@
 from django.contrib.auth import get_user_model
+from django.utils.translation import ngettext_lazy
 from django.core.validators import MinValueValidator
 from django.db import models
 
 User = get_user_model()
 
-MAX_LENGTH_NAME_TAG = 32
-MAX_LENGTH_SLUG_TAG = 32
-MAX_LENGTH_NAME_INGRIDIENT = 128
-MAX_LENGTH_UNIT_INGRIDIENT = 128
-MAX_LENGTH_UNIT_RECIPE = 256
-MAX_LENGTH_UNIT = 200
+MAX_LENGTH_TAG_NAME = 32
+MAX_LENGTH_TAG_SLUG = 32
+MAX_LENGTH_INGREDIENT_NAME = 128
+MAX_LENGTH_INGREDIENT_UNIT = 64
+MAX_LENGTH_RECIPE_NAME = 256
 MIN_AMOUNT = 1
 MIN_TIME = 1
 
@@ -17,12 +17,12 @@ MIN_TIME = 1
 class Tag(models.Model):
     name = models.CharField(
         'Название',
-        max_length=MAX_LENGTH_NAME_TAG,
+        max_length=MAX_LENGTH_TAG_NAME,
         unique=True,
     )
     slug = models.SlugField(
         'Идентификатор',
-        max_length=MAX_LENGTH_SLUG_TAG,
+        max_length=MAX_LENGTH_TAG_SLUG,
         unique=True,
     )
 
@@ -38,12 +38,12 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         'Название',
-        max_length=MAX_LENGTH_NAME_INGRIDIENT,
+        max_length=MAX_LENGTH_INGREDIENT_NAME,
         unique=True,
     )
     unit = models.CharField(
         'Единица измерения',
-        max_length=MAX_LENGTH_UNIT_INGRIDIENT,
+        max_length=MAX_LENGTH_INGREDIENT_UNIT,
 
     )
 
@@ -64,7 +64,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         'Название',
-        max_length=MAX_LENGTH_UNIT_RECIPE,
+        max_length=MAX_LENGTH_RECIPE_NAME,
     )
     description = models.TextField(
         'Описание'
@@ -79,19 +79,21 @@ class Recipe(models.Model):
         Ingredient,
         through='RecipeIngredient',
         verbose_name='Ингредиенты',
-        related_name='recipes'
     )
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Теги',
-        related_name='recipes'
     )
     cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления (минуты)',
         validators=[
             MinValueValidator(
                 MIN_TIME,
-                message=f'Минимум {MIN_TIME} минута!'
+                message=ngettext_lazy(
+                    'Минимум %(count)d минута!',
+                    'Минимум %(count)d минут!',
+                    MIN_TIME
+                ) % {'count': MIN_TIME}
             )
         ]
     )
@@ -123,7 +125,6 @@ class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='recipe_ingredients',
         verbose_name='Ингредиент'
     )
     amount = models.PositiveSmallIntegerField(
@@ -159,18 +160,23 @@ class UserRecipeRelation(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='%(class)s_list',
         verbose_name='Пользователь',
     )
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='%(class)s_list',
         verbose_name='Рецепт',
     )
 
     class Meta:
         abstract = True
+        default_related_name = '%(class)ss'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_%(class)s'
+            )
+        ]
 
     def __str__(self):
         return f'{self.user} -> {self.recipe}'
@@ -182,12 +188,6 @@ class Favorite(UserRecipeRelation):
     class Meta(UserRecipeRelation.Meta):
         verbose_name = 'Избранный рецепт'
         verbose_name_plural = 'Избранные рецепты'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_favorite'
-            )
-        ]
 
 
 class ShoppingCart(UserRecipeRelation):
@@ -196,12 +196,6 @@ class ShoppingCart(UserRecipeRelation):
     class Meta(UserRecipeRelation.Meta):
         verbose_name = 'Корзина покупок'
         verbose_name_plural = 'Корзины покупок'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'recipe'],
-                name='unique_shopping_cart'
-            )
-        ]
 
 
 class Follow(models.Model):

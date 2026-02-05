@@ -12,14 +12,16 @@ admin.site.unregister(Group)
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin, RecipeCountMixin):
-    list_display = ('id', 'name', 'slug', 'recipes_count')
+    list_display = (
+        'id', 'name', 'slug', *RecipeCountMixin.recipe_count_list_display
+    )
     search_fields = ('name', 'slug')
     recipe_relation_name = 'recipes'
 
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin, RecipeCountMixin):
-    list_display = ('id', 'name', 'recipes_count')
+    list_display = ('id', 'name', *RecipeCountMixin.recipe_count_list_display)
     search_fields = ('name',)
     recipe_relation_name = 'recipe_ingredients'
 
@@ -68,7 +70,7 @@ class RecipeAdmin(admin.ModelAdmin):
     def get_image(self, recipe):
         if recipe.image:
             return f'<img src="{recipe.image.url}" width="80" height="60">'
-        return "Нет фото"
+        return ""
 
 
 class BaseRecipeUserAdmin(admin.ModelAdmin):
@@ -88,14 +90,13 @@ class ShoppingCartAdmin(BaseRecipeUserAdmin):
 
 @admin.register(RecipeIngredient)
 class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = ('recipe', 'ingredient', 'amount')
+    list_display = ('id', 'recipe', 'ingredient', 'amount')
 
 
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user')
+    list_display = ('id', 'user', 'author')
     search_fields = ('user__username', 'author__username')
-
 
 try:
     admin.site.unregister(User)
@@ -105,6 +106,40 @@ except admin.sites.NotRegistered:
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ('id', 'username', 'email', 'first_name', 'last_name')
-    search_fields = ('username', 'email')
-    list_filter = ('username', 'email')
+    list_display = (
+        'id',
+        'username',
+        'full_name',
+        'email',
+        'get_avatar',
+        'recipes_count',
+        'following_count',
+        'followers_count'
+    )
+    list_filter = ('is_staff', 'is_active')
+
+    @admin.display(description='ФИО')
+    def full_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}".strip() or obj.username
+
+    @mark_safe
+    @admin.display(description='Аватар')
+    def get_avatar(self, obj):
+        if obj.avatar:
+            return (
+                f'<img src="{obj.avatar.url}" width="40" height="40" '
+                'style="border-radius:50%;">'
+            )
+        return ""
+
+    @admin.display(description='Рецептов')
+    def recipes_count(self, obj):
+        return obj.recipes.count()
+
+    @admin.display(description='Подписок')
+    def following_count(self, obj):
+        return obj.followers.count()
+
+    @admin.display(description='Подписчиков')
+    def followers_count(self, obj):
+        return obj.autors.count()

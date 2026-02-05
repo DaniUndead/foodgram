@@ -3,10 +3,9 @@ from collections import Counter
 from django.db import transaction
 from djoser.serializers import UserSerializer as DjoserUserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from recipes.models import Favorite, Ingredient, Recipe, RecipeIngredient, Tag
+from recipes.models import (MIN_AMOUNT, MIN_TIME, Favorite, Ingredient, Recipe,
+                            RecipeIngredient, ShoppingCart, Tag)
 from rest_framework import serializers
-
-from backend.settings import MIN_VALUE
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -36,7 +35,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.ReadOnlyField(
         source='ingredient.measurement_unit'
     )
-    amount = serializers.IntegerField(min_value=MIN_VALUE)
+    amount = serializers.IntegerField(min_value=MIN_AMOUNT)
 
     class Meta:
         model = RecipeIngredient
@@ -105,7 +104,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         return self._is_exists(recipe, Favorite)
 
     def get_is_in_shopping_cart(self, recipe):
-        return self._is_exists(recipe, 'shopping_cart')
+        return self._is_exists(recipe, ShoppingCart)
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
@@ -120,7 +119,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         many=True,
         queryset=Tag.objects.all()
     )
-    cooking_time = serializers.IntegerField(min_value=MIN_VALUE)
+    cooking_time = serializers.IntegerField(min_value=MIN_TIME)
 
     class Meta:
         model = Recipe
@@ -171,17 +170,16 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return RecipeReadSerializer(instance, context=self.context).data
 
     @transaction.atomic
-    def update(self, instance, validated_data):
+def update(self, instance, validated_data):
+        """Обновление рецепта."""
         ingredients_data = validated_data.pop('recipe_ingredients')
         tags_data = validated_data.pop('tags')
-
-        instance = super().update(instance, validated_data)
 
         instance.tags.set(tags_data)
         instance.recipe_ingredients.all().delete()
         self.create_ingredients(instance, ingredients_data)
 
-        return instance
+        return super().update(instance, validated_data)
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):

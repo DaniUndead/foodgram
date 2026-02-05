@@ -53,14 +53,16 @@ class UserViewSet(DjoserUserViewSet):
     )
     def subscriptions(self, request):
         """Список подписок текущего пользователя."""
-        queryset = User.objects.filter(
-            following__user=request.user
-        ).prefetch_related('recipes')
-        return self.get_paginated_response(UserWithRecipesSerializer(
-            self.paginate_queryset(queryset),
-            many=True,
-            context={'request': request}
-        ).data)
+        return self.get_paginated_response(
+            UserWithRecipesSerializer(
+                self.paginate_queryset(
+                    User.objects.filter(following__user=request.user)
+                    .prefetch_related('recipes')
+                ),
+                many=True,
+                context={'request': request}
+            ).data
+        )
 
     @action(
         detail=True,
@@ -181,6 +183,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'], url_path='get-link')
     def get_link(self, request, pk=None):
         if not Recipe.objects.filter(pk=pk).exists():
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        short_url = reverse('short-link-redirect', kwargs={'pk': pk})
-        return Response({'short-link': request.build_absolute_uri(short_url)})
+            raise ValidationError(
+                f'Рецепт с идентификатором id={pk} не найден. '
+                'Проверьте корректность передаваемого значения.'
+            )
+        return Response(
+            {'short-link': request.build_absolute_uri(
+                reverse('short-link-redirect', args=[pk])
+            )},
+            status=status.HTTP_200_OK
+        )
