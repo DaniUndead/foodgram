@@ -98,6 +98,7 @@ class FollowAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'author')
     search_fields = ('user__username', 'author__username')
 
+
 try:
     admin.site.unregister(User)
 except admin.sites.NotRegistered:

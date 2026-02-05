@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.utils.translation import ngettext_lazy
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils.translation import ngettext_lazy
 
 User = get_user_model()
 
