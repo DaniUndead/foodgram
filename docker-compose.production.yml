@@ -17,6 +17,7 @@ services:
     volumes:
       - static_volume:/backend_static
       - media_volume:/app/media
+      - ./data:/app/data
   frontend:
     image: undaemon/foodgram_frontend
     env_file: .env

@@ -185,11 +185,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if not Recipe.objects.filter(pk=pk).exists():
             raise ValidationError(
                 f'Рецепт с идентификатором id={pk} не найден. '
-                'Проверьте корректность передаваемого значения.'
             )
         return Response(
             {'short-link': request.build_absolute_uri(
                 reverse('short-link-redirect', args=[pk])
             )},
-            status=status.HTTP_200_OK
         )

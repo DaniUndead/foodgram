@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils.translation import ngettext_lazy
 
 User = get_user_model()
 
@@ -39,9 +38,8 @@ class Ingredient(models.Model):
     name = models.CharField(
         'Название',
         max_length=MAX_LENGTH_INGREDIENT_NAME,
-        unique=True,
     )
-    unit = models.CharField(
+    v = models.CharField(
         'Единица измерения',
         max_length=MAX_LENGTH_INGREDIENT_UNIT,
 
@@ -51,6 +49,12 @@ class Ingredient(models.Model):
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
         ordering = ('name',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['name', 'measurement_unit'],
+                name='unique_ingredient'
+            )
+        ]
 
     def __str__(self):
         return f'{self.name}, {self.unit}'
@@ -89,11 +93,6 @@ class Recipe(models.Model):
         validators=[
             MinValueValidator(
                 MIN_TIME,
-                message=ngettext_lazy(
-                    'Минимум %(count)d минута!',
-                    'Минимум %(count)d минут!',
-                    MIN_TIME
-                ) % {'count': MIN_TIME}
             )
         ]
     )

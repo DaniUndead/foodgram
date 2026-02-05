@@ -13,7 +13,7 @@ admin.site.unregister(Group)
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin, RecipeCountMixin):
     list_display = (
-        'id', 'name', 'slug', *RecipeCountMixin.recipe_count_list_display
+        'id', 'name', 'slug', *RecipeCountMixin.list_display
     )
     search_fields = ('name', 'slug')
     recipe_relation_name = 'recipes'
@@ -21,7 +21,7 @@ class TagAdmin(admin.ModelAdmin, RecipeCountMixin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin, RecipeCountMixin):
-    list_display = ('id', 'name', *RecipeCountMixin.recipe_count_list_display)
+    list_display = ('id', 'name', *RecipeCountMixin.list_display)
     search_fields = ('name',)
     recipe_relation_name = 'recipe_ingredients'
 
@@ -106,16 +106,16 @@ except admin.sites.NotRegistered:
 
 
 @admin.register(User)
-class UserAdmin(BaseUserAdmin):
+class UserAdmin(RecipeCountMixin, BaseUserAdmin):
     list_display = (
         'id',
         'username',
         'full_name',
         'email',
         'get_avatar',
-        'recipes_count',
         'following_count',
-        'followers_count'
+        'followers_count',
+        *RecipeCountMixin.list_display
     )
     list_filter = ('is_staff', 'is_active')
 
@@ -131,11 +131,7 @@ class UserAdmin(BaseUserAdmin):
                 f'<img src="{obj.avatar.url}" width="40" height="40" '
                 'style="border-radius:50%;">'
             )
-        return ""
-
-    @admin.display(description='Рецептов')
-    def recipes_count(self, obj):
-        return obj.recipes.count()
+        return ''
 
     @admin.display(description='Подписок')
     def following_count(self, obj):
