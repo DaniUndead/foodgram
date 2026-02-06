@@ -28,6 +28,7 @@ class IngredientAdmin(admin.ModelAdmin, RecipeCountMixin):
 
 class RecipeIngredientInline(admin.TabularInline):
     """Позволяет добавлять ингредиенты сразу на странице рецепта."""
+
     model = RecipeIngredient
     min_num = 1
     extra = 1
