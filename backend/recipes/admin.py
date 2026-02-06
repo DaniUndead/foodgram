@@ -123,16 +123,6 @@ class UserAdmin(RecipeCountMixin, BaseUserAdmin):
     def full_name(self, obj):
         return f"{obj.first_name} {obj.last_name}".strip() or obj.username
 
-    @mark_safe
-    @admin.display(description='Аватар')
-    def get_avatar(self, obj):
-        if obj.avatar:
-            return (
-                f'<img src="{obj.avatar.url}" width="40" height="40" '
-                'style="border-radius:50%;">'
-            )
-        return ''
-
     @admin.display(description='Подписок')
     def following_count(self, obj):
         return obj.followers.count()

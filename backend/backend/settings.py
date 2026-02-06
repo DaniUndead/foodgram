@@ -117,10 +117,15 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = BASE_DIR / 'collected_static'
+STATIC_ROOT = '/backend_static'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000'
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://foooodgram.hopto.org',
+    'http://foooodgram.hopto.org',
 ]
