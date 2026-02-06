@@ -113,7 +113,6 @@ class UserAdmin(RecipeCountMixin, BaseUserAdmin):
         'username',
         'full_name',
         'email',
-        'get_avatar',
         'following_count',
         'followers_count',
         *RecipeCountMixin.list_display
