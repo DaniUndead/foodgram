@@ -10,7 +10,7 @@ admin.site.unregister(Group)
 
 
 @admin.register(Tag)
-class TagAdmin(admin.ModelAdmin, RecipeCountMixin):
+class TagAdmin(RecipeCountMixin, admin.ModelAdmin):
     list_display = (
         'id', 'name', 'slug', *RecipeCountMixin.list_display
     )
@@ -19,7 +19,7 @@ class TagAdmin(admin.ModelAdmin, RecipeCountMixin):
 
 
 @admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin, RecipeCountMixin):
+class IngredientAdmin(RecipeCountMixin, admin.ModelAdmin):
     list_display = (
         'id',
         'name',
@@ -27,7 +27,7 @@ class IngredientAdmin(admin.ModelAdmin, RecipeCountMixin):
         *RecipeCountMixin.list_display
     )
     search_fields = ('name',)
-    recipe_relation_name = 'recipe_ingredients'
+    recipe_relation_name = 'recipes'
 
 
 class RecipeIngredientInline(admin.TabularInline):
