@@ -3,7 +3,14 @@ from django.db import models
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, username, first_name, last_name, password=None):
+    def create_user(
+            self,
+            email,
+            username,
+            first_name,
+            last_name,
+            password=None
+    ):
         if not email:
             raise ValueError('У пользователя должен быть Email')
         if not username:
