@@ -7,6 +7,10 @@ from .models import User
 
 admin.site.unregister(Group)
 
+try:
+    admin.site.unregister(User)
+except admin.sites.NotRegistered:
+    pass
 
 @admin.register(User)
 class UserAdmin(RecipeCountMixin, BaseUserAdmin):
