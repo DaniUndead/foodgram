@@ -13,7 +13,7 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('id', 'name', 'slug', 'color')
+        fields = ('id', 'name', 'slug')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -48,7 +48,7 @@ class UserSerializer(DjoserUserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta(DjoserUserSerializer.Meta):
-        fields = [*DjoserUserSerializer.Meta.fields, 'is_subscribed', 'avatar']
+        fields = [*DjoserUserSerializer.Meta.fields, 'is_subscribed']
         read_only_fields = fields
 
     def get_is_subscribed(self, obj):
