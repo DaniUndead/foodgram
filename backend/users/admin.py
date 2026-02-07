@@ -12,6 +12,7 @@ try:
 except admin.sites.NotRegistered:
     pass
 
+
 @admin.register(User)
 class UserAdmin(RecipeCountMixin, BaseUserAdmin):
     list_display = (

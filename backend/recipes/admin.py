@@ -4,7 +4,7 @@ from django.utils.safestring import mark_safe
 
 from .mixins import RecipeCountMixin
 from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
-                     ShoppingCart, Tag, User)
+                     ShoppingCart, Tag)
 
 admin.site.unregister(Group)
 
