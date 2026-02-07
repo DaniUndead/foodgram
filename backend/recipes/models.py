@@ -57,7 +57,7 @@ class Ingredient(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.name}, {self.unit}'
+        return f'{self.name}, {self.measurement_unit}'
 
 
 class Recipe(models.Model):
@@ -209,7 +209,7 @@ class Follow(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='autors',
+        related_name='authors',
         verbose_name='Автор'
     )
 

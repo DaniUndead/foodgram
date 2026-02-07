@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'djoser',
     'recipes',
+    'users'
     'api.apps.ApiConfig',
 ]
 
@@ -148,3 +149,5 @@ DJOSER = {
         'current_user': 'djoser.serializers.UserSerializer',
     },
 }
+
+AUTH_USER_MODEL = 'users.User'

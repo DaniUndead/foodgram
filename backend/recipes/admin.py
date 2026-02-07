@@ -21,7 +21,12 @@ class TagAdmin(admin.ModelAdmin, RecipeCountMixin):
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin, RecipeCountMixin):
-    list_display = ('id', 'name', *RecipeCountMixin.list_display)
+    list_display = (
+        'id',
+        'name',
+        'measurement_unit',
+        *RecipeCountMixin.list_display
+    )
     search_fields = ('name',)
     recipe_relation_name = 'recipe_ingredients'
 
