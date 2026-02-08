@@ -70,11 +70,10 @@ class User(AbstractUser):
     )
     avatar = models.ImageField(
         'Аватар',
-        upload_to='app/media',
+        upload_to='users/avatars/',
         blank=True,
         null=True,
     )
-
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'

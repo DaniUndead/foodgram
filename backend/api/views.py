@@ -18,7 +18,8 @@ from .pagination import NewPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientSerializer, RecipeReadSerializer,
                           RecipeShortSerializer, RecipeWriteSerializer,
-                          TagSerializer, UserWithRecipesSerializer)
+                          TagSerializer, UserSerializer,
+                          UserWithRecipesSerializer)
 from .utils import generate_shopping_list
 
 
@@ -105,18 +106,15 @@ class UserViewSet(DjoserUserViewSet):
         user = request.user
 
         if request.method == 'PUT':
-            serializer = self.get_serializer(
-                user, data=request.data, partial=True
-            )
+            serializer = UserSerializer(user, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        elif request.method == 'DELETE':
+        if user.avatar:
             user.avatar.delete()
             user.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для работы с рецептами."""
