@@ -77,11 +77,12 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
+    text = serializers.CharField(source='description')
 
     class Meta:
         model = Recipe
         fields = (
-            'id', 'author', 'name', 'image', 'description',
+            'id', 'author', 'name', 'image', 'text',
             'ingredients', 'tags', 'cooking_time',
             'is_favorited', 'is_in_shopping_cart'
         )
@@ -121,11 +122,12 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all()
     )
     cooking_time = serializers.IntegerField(min_value=MIN_TIME)
+    text = serializers.CharField(source='description')
 
     class Meta:
         model = Recipe
         fields = (
-            'id', 'name', 'image', 'description',
+            'id', 'name', 'image', 'text',
             'ingredients', 'tags', 'cooking_time'
         )
 
@@ -185,7 +187,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         if 'image' in validated_data and validated_data['image'] is None:
             validated_data.pop('image')
 
-        return super().update(instance, validated_data)
+        instance = super().update(instance, validated_data)
+
+        return instance.save()
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):
