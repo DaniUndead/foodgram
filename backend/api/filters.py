@@ -1,40 +1,6 @@
 import django_filters
 from django_filters.rest_framework import FilterSet
-from recipes.models import Ingredient, Recipe
-
-
-class RecipeFilter(FilterSet):
-
-    tags = django_filters.filters.AllValuesMultipleFilter(
-        field_name='tags__slug',
-        label='Теги'
-    )
-
-    is_favorited = django_filters.filters.BooleanFilter(
-        method='filter_is_favorited',
-        label='В избранном'
-    )
-
-    is_in_shopping_cart = django_filters.filters.BooleanFilter(
-        method='filter_is_in_shopping_cart',
-        label='В корзине'
-    )
-
-    class Meta:
-        model = Recipe
-        fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
-
-    def filter_is_favorited(self, queryset, name, value):
-        user = self.request.user
-        if value and user.is_authenticated:
-            return queryset.filter(favorites__user=user)
-        return queryset
-
-    def filter_is_in_shopping_cart(self, queryset, name, value):
-        user = self.request.user
-        if value and user.is_authenticated:
-            return queryset.filter(shopping_cart__user=user)
-        return queryset
+from recipes.models import Ingredient
 
 
 class IngredientFilter(FilterSet):

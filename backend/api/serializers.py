@@ -49,7 +49,12 @@ class UserSerializer(DjoserUserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta(DjoserUserSerializer.Meta):
-        fields = [*DjoserUserSerializer.Meta.fields, 'is_subscribed', 'avatar']
+        fields = (
+            *DjoserUserSerializer.Meta.fields,
+            'is_subscribed',
+            'avatar',
+            'shopping_cart_count'
+        )
         read_only_fields = fields
 
     def get_is_subscribed(self, obj):
