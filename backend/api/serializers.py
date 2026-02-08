@@ -45,11 +45,11 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 class UserSerializer(DjoserUserSerializer):
     """Сериализатор для пользователя."""
-
+    avatar = Base64ImageField(required=False, allow_null=True)
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta(DjoserUserSerializer.Meta):
-        fields = [*DjoserUserSerializer.Meta.fields, 'is_subscribed']
+        fields = [*DjoserUserSerializer.Meta.fields, 'is_subscribed', 'avatar']
         read_only_fields = fields
 
     def get_is_subscribed(self, obj):
@@ -63,6 +63,11 @@ class UserSerializer(DjoserUserSerializer):
                 or obj.authors.filter(user=request.user).exists()
             )
         )
+
+    def get_shopping_cart_count(self, obj):
+        if obj.is_anonymous:
+            return 0
+        return ShoppingCart.objects.filter(user=obj).count()
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
