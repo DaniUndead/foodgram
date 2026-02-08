@@ -57,7 +57,7 @@ class UserViewSet(DjoserUserViewSet):
         return self.get_paginated_response(
             UserWithRecipesSerializer(
                 self.paginate_queryset(
-                    User.objects.filter(following__user=request.user)
+                    User.objects.filter(authors__user=request.user)
                     .prefetch_related('recipes')
                 ),
                 many=True,
@@ -176,7 +176,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=False,
-        methods=['post', 'delete'],
+        methods=['get'],
         permission_classes=[IsAuthenticated, IsAuthenticatedOrReadOnly]
     )
     def download_shopping_cart(self, request):
