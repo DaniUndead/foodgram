@@ -110,7 +110,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 class RecipeWriteSerializer(serializers.ModelSerializer):
     """Сериализатор для создания и обновления рецептов."""
 
-    image = Base64ImageField(required=True)
+    image = Base64ImageField(required=False, allow_null=True)
     ingredients = RecipeIngredientSerializer(
         many=True,
         source='recipe_ingredients'
