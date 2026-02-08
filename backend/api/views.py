@@ -116,6 +116,7 @@ class UserViewSet(DjoserUserViewSet):
             user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для работы с рецептами."""
     queryset = Recipe.objects.select_related('author').prefetch_related(
