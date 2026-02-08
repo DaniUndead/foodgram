@@ -173,9 +173,22 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return RecipeReadSerializer(instance, context=self.context).data
 
     @transaction.atomic
+    def create(self, validated_data):
+
+        ingredients_data = validated_data.pop('recipe_ingredients')
+        tags_data = validated_data.pop('tags')
+
+        recipe = Recipe.objects.create(**validated_data)
+
+        recipe.tags.set(tags_data)
+        self.create_ingredients(recipe, ingredients_data)
+
+        return recipe
+
+    @transaction.atomic
     def update(self, instance, validated_data):
-        tags_data = validated_data.pop('tags', None)
-        ingredients_data = validated_data.pop('recipe_ingredients', None)
+        tags_data = validated_data.pop('tags', [])
+        ingredients_data = validated_data.pop('recipe_ingredients', [])
 
         if tags_data is not None:
             instance.tags.set(tags_data)
@@ -189,7 +202,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
         instance = super().update(instance, validated_data)
 
-        return instance.save()
+        return instance
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):

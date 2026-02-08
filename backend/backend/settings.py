@@ -127,6 +127,8 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000'
 ]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 CSRF_TRUSTED_ORIGINS = [
     'https://foooodgram.hopto.org',
     'http://foooodgram.hopto.org',
