@@ -132,7 +132,7 @@ const RecipeCreate = ({ onEdit }) => {
               return;
             }
             const data = {
-              text: recipeText,
+              description: recipeText,
               name: recipeName,
               ingredients: recipeIngredients.map((item) => ({
                 id: item.id,

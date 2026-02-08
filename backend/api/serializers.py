@@ -172,13 +172,18 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        """Обновление рецепта."""
-        ingredients_data = validated_data.pop('recipe_ingredients')
-        tags_data = validated_data.pop('tags')
+        tags_data = validated_data.pop('tags', None)
+        ingredients_data = validated_data.pop('recipe_ingredients', None)
 
-        instance.tags.set(tags_data)
-        instance.recipe_ingredients.all().delete()
-        self.create_ingredients(instance, ingredients_data)
+        if tags_data is not None:
+            instance.tags.set(tags_data)
+
+        if ingredients_data is not None:
+            instance.recipe_ingredients.all().delete()
+            self.create_ingredients(instance, ingredients_data)
+
+        if 'image' in validated_data and validated_data['image'] is None:
+            validated_data.pop('image')
 
         return super().update(instance, validated_data)
 
