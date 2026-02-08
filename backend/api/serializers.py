@@ -60,7 +60,7 @@ class UserSerializer(DjoserUserSerializer):
             and request.user.is_authenticated
             and (
                 getattr(obj, 'is_subscribed_annotated', False)
-                or obj.autors.filter(user=request.user).exists()
+                or obj.authors.filter(user=request.user).exists()
             )
         )
 
