@@ -47,6 +47,7 @@ class UserSerializer(DjoserUserSerializer):
     """Сериализатор для пользователя."""
     avatar = Base64ImageField(required=False, allow_null=True)
     is_subscribed = serializers.SerializerMethodField()
+    shopping_cart_count = serializers.SerializerMethodField()
 
     class Meta(DjoserUserSerializer.Meta):
         fields = (
