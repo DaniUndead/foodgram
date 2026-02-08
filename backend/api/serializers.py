@@ -2,10 +2,11 @@ from collections import Counter
 
 from django.db import transaction
 from djoser.serializers import UserSerializer as DjoserUserSerializer
-from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (MIN_AMOUNT, MIN_TIME, Favorite, Ingredient, Recipe,
                             RecipeIngredient, ShoppingCart, Tag)
 from rest_framework import serializers
+
+from .utils import Base64ImageField
 
 
 class TagSerializer(serializers.ModelSerializer):
