@@ -95,6 +95,28 @@ class UserViewSet(DjoserUserViewSet):
             status=status.HTTP_201_CREATED
         )
 
+    @action(
+            detail=False,
+            methods=['put', 'delete'],
+            url_path='me/avatar',
+            permission_classes=[IsAuthenticated]
+        )
+    def avatar(self, request):
+        user = request.user
+
+        if request.method == 'PUT':
+            serializer = self.get_serializer(
+                user, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        elif request.method == 'DELETE':
+            user.avatar.delete()
+            user.save()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для работы с рецептами."""

@@ -1,20 +1,21 @@
-from django_filters.rest_framework import FilterSet, filters
+import django_filters
+from django_filters.rest_framework import FilterSet
 from recipes.models import Ingredient, Recipe
 
 
 class RecipeFilter(FilterSet):
 
-    tags = filters.AllValuesMultipleFilter(
+    tags = django_filters.filters.AllValuesMultipleFilter(
         field_name='tags__slug',
         label='Теги'
     )
 
-    is_favorited = filters.BooleanFilter(
+    is_favorited = django_filters.filters.BooleanFilter(
         method='filter_is_favorited',
         label='В избранном'
     )
 
-    is_in_shopping_cart = filters.BooleanFilter(
+    is_in_shopping_cart = django_filters.filters.BooleanFilter(
         method='filter_is_in_shopping_cart',
         label='В корзине'
     )
@@ -36,8 +37,8 @@ class RecipeFilter(FilterSet):
         return queryset
 
 
-class IngredientFilter(filters.FilterSet):
-    name = filters.CharFilter(lookup_expr='istartswith')
+class IngredientFilter(FilterSet):
+    name = django_filters.filters.CharFilter(lookup_expr='istartswith')
 
     class Meta:
         model = Ingredient
