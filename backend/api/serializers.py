@@ -73,9 +73,7 @@ class UserSerializer(DjoserUserSerializer):
     def get_shopping_cart_count(self, obj):
         if obj.is_anonymous:
             return 0
-        return ShoppingCart.objects.filter(user=obj).exclude(
-            recipe__author=obj
-        ).count()
+        return ShoppingCart.objects.filter(user=obj).count()
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -145,7 +143,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         )
 
     def _validate_unique(self, items, error_msg):
-        """Проверка на дубликаты (DRY)."""
+        """Проверка на дубликаты."""
         if not items:
             raise serializers.ValidationError('Список не может быть пустым.')
 
@@ -155,7 +153,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         ]
 
         if len(ids) != len(set(ids)):
-
             duplicates = [
                 item for item, count in Counter(ids).items()
                 if count > 1
@@ -163,6 +160,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 f'{error_msg} Дубли: {duplicates}'
             )
+        raise items
 
     def validate_ingredients(self, ingredients):
         return self._validate_unique(

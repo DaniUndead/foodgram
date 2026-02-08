@@ -161,8 +161,7 @@ jobs:
             cd foodgram_project
             sudo docker compose -f docker-compose.production.yml pull
             sudo docker compose -f docker-compose.production.yml down
-            sudo docker compose -f docker-compose.production.yml up -d
-            sudo docker compose -f docker-compose.production.yml exec backend python manage.py makemigrations
+            sudo docker compose -f docker-compose.production.yml up -d 
             sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate --run-syncdb
             sudo docker compose -f docker-compose.production.yml exec -T backend python manage.py import_ingredients
             sudo docker compose -f docker-compose.production.yml exec -T backend python manage.py import_tags
