@@ -97,11 +97,11 @@ class UserViewSet(DjoserUserViewSet):
         )
 
     @action(
-            detail=False,
-            methods=['put', 'delete'],
-            url_path='me/avatar',
-            permission_classes=[IsAuthenticated]
-        )
+        detail=False,
+        methods=['put', 'delete'],
+        url_path='me/avatar',
+        permission_classes=[IsAuthenticated]
+    )
     def avatar(self, request):
         user = request.user
 
