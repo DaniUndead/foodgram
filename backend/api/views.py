@@ -13,7 +13,7 @@ from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from .filters import IngredientFilter  # , RecipeFilter
+from .filters import IngredientFilter, RecipeFilter
 from .pagination import NewPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientSerializer, RecipeReadSerializer,
@@ -103,8 +103,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     permission_classes = (IsAuthorOrReadOnly, IsAuthenticatedOrReadOnly)
     pagination_class = NewPageNumberPagination
-    # filter_backends = (DjangoFilterBackend,)
-    # filterset_class = RecipeFilter
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.action in ('create', 'update', 'partial_update'):

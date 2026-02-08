@@ -67,7 +67,9 @@ class UserSerializer(DjoserUserSerializer):
     def get_shopping_cart_count(self, obj):
         if obj.is_anonymous:
             return 0
-        return ShoppingCart.objects.filter(user=obj).count()
+        return ShoppingCart.objects.filter(user=obj).exclude(
+            recipe__author=obj
+        ).count()
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
