@@ -13,7 +13,7 @@ from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from .filters import IngredientFilter, RecipeFilter
+from .filters import IngredientFilter  # , RecipeFilter
 from .pagination import NewPageNumberPagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (IngredientSerializer, RecipeReadSerializer,
