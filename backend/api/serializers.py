@@ -143,7 +143,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         )
 
     def _validate_unique(self, items, error_msg):
-        """Проверка на дубликаты."""
+        """Проверка на дубликаты (DRY)."""
         if not items:
             raise serializers.ValidationError('Список не может быть пустым.')
 
@@ -157,10 +157,12 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 item for item, count in Counter(ids).items()
                 if count > 1
             ]
+
             raise serializers.ValidationError(
                 f'{error_msg} Дубли: {duplicates}'
             )
-        raise items
+
+        return items
 
     def validate_ingredients(self, ingredients):
         return self._validate_unique(
