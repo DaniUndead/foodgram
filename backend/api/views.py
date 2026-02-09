@@ -1,6 +1,6 @@
 from django.db.models import Sum
 from django.forms import ValidationError
-from django.http import FileResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
@@ -194,12 +194,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         content = generate_shopping_list(user, ingredients, recipes)
 
-        return FileResponse(
-            content,
-            content_type='text/plain',
-            as_attachment=True,
-            filename='shopping_list.txt'
+        response = HttpResponse(content, content_type='text/plain')
+        response['Content-Disposition'] = (
+            'attachment; filename="shopping_list.txt"'
         )
+        return response
 
     @action(detail=True, methods=['get'], url_path='get-link')
     def get_link(self, request, pk=None):

@@ -36,5 +36,6 @@ services:
     volumes:
       - static_volume:/static
       - media_volume:/app/media
+      - ./docs:/app/docs
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - /etc/letsencrypt:/etc/letsencrypt:ro
