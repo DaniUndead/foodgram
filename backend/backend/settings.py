@@ -13,7 +13,7 @@ SECRET_KEY = os.getenv(
     'django-insecure-fallback-key-for-dev-only'
 )
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
 
