@@ -9,6 +9,7 @@ from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
 
 admin.site.unregister(Group)
 
+
 class IngredientInRecipesFilter(admin.SimpleListFilter):
     """Фильтр для поиска ингредиентов, которые используются в рецептах."""
 
@@ -69,6 +70,7 @@ class IngredientAdmin(RecipeCountMixin, admin.ModelAdmin):
     )
     search_fields = ('name',)
     list_filter = ('measurement_unit', IngredientInRecipesFilter)
+
 
 class RecipeIngredientInline(admin.TabularInline):
     """Позволяет добавлять ингредиенты сразу на странице рецепта."""
