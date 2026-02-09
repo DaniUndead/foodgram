@@ -117,7 +117,6 @@ class UserAdmin(RecipeCountMixin, BaseUserAdmin):
         'full_name',
         'email',
         'following_count',
-        'followers_count',
         *RecipeCountMixin.list_display
     )
     list_filter = ('is_staff', 'is_active')
