@@ -107,7 +107,7 @@ class Recipe(models.Model):
         'Название',
         max_length=MAX_LENGTH_RECIPE_NAME,
     )
-    description = models.TextField(
+    text = models.TextField(
         'Описание'
     )
     image = models.ImageField(

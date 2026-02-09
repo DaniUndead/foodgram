@@ -9,6 +9,47 @@ from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
 
 admin.site.unregister(Group)
 
+class IngredientInRecipesFilter(admin.SimpleListFilter):
+    """Фильтр для поиска ингредиентов, которые используются в рецептах."""
+
+    title = 'Используется в рецептах'
+    parameter_name = 'used_in_recipes'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'Да'),
+            ('no', 'Нет'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(recipe_ingredients__isnull=False).distinct()
+        if self.value() == 'no':
+            return queryset.filter(recipe_ingredients__isnull=True)
+
+        return queryset
+
+
+@admin.register(User)
+class UserAdmin(RecipeCountMixin, BaseUserAdmin):
+    list_display = (
+        'id',
+        'username',
+        'full_name',
+        'email',
+        'following_count',
+        *RecipeCountMixin.list_display
+    )
+    list_filter = ('is_staff', 'is_active')
+
+    @admin.display(description='ФИО')
+    def full_name(self, user):
+        return f"{user.first_name} {user.last_name}".strip()
+
+    @admin.display(description='Подписок')
+    def following_count(self, user):
+        return user.followers.count()
+
 
 @admin.register(Tag)
 class TagAdmin(RecipeCountMixin, admin.ModelAdmin):
@@ -27,7 +68,7 @@ class IngredientAdmin(RecipeCountMixin, admin.ModelAdmin):
         *RecipeCountMixin.list_display
     )
     search_fields = ('name',)
-
+    list_filter = ('measurement_unit', IngredientInRecipesFilter)
 
 class RecipeIngredientInline(admin.TabularInline):
     """Позволяет добавлять ингредиенты сразу на странице рецепта."""
@@ -40,7 +81,7 @@ class RecipeIngredientInline(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
-        'id', 'name', 'cooking_time', 'author',
+        'id', 'name', 'get_cooking_time', 'author',
         'favorites_count', 'get_ingredients', 'get_tags', 'get_image'
     )
 
@@ -50,7 +91,24 @@ class RecipeAdmin(admin.ModelAdmin):
         'tags__name',
         'ingredients__name'
     )
+    list_filter = ('author', 'tags')
     inlines = (RecipeIngredientInline,)
+    fieldsets = (
+        (None, {
+            'fields': (
+                ('name', 'cooking_time'),
+                ('author', 'tags'),
+                'description',
+                'image',
+            )
+        }),
+    )
+
+    @admin.display(description='Время (мин)')
+    def get_cooking_time(self, obj):
+        return obj.cooking_time
+
+    get_cooking_time.admin_order_field = 'cooking_time'
 
     @admin.display(description='В избранном')
     def favorites_count(self, recipe):
@@ -101,30 +159,3 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
 class FollowAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'author')
     search_fields = ('user__username', 'author__username')
-
-
-try:
-    admin.site.unregister(User)
-except admin.sites.NotRegistered:
-    pass
-
-
-@admin.register(User)
-class UserAdmin(RecipeCountMixin, BaseUserAdmin):
-    list_display = (
-        'id',
-        'username',
-        'full_name',
-        'email',
-        'following_count',
-        *RecipeCountMixin.list_display
-    )
-    list_filter = ('is_staff', 'is_active')
-
-    @admin.display(description='ФИО')
-    def full_name(self, user):
-        return f"{user.first_name} {user.last_name}".strip()
-
-    @admin.display(description='Подписок')
-    def following_count(self, user):
-        return user.followers.count()
