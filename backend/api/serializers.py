@@ -50,6 +50,7 @@ class UserSerializer(DjoserUserSerializer):
         source='shoppingcarts.count',
         read_only=True
     )
+    avatar = Base64ImageField(required=False, allow_null=True)
 
     class Meta(DjoserUserSerializer.Meta):
         fields = (
