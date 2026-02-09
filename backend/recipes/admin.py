@@ -100,7 +100,7 @@ class RecipeAdmin(admin.ModelAdmin):
             'fields': (
                 ('name', 'cooking_time'),
                 ('author', 'tags'),
-                'description',
+                'text',
                 'image',
             )
         }),
