@@ -183,14 +183,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
 
         ingredients = Ingredient.objects.filter(
-            recipe_ingredients__recipe__shopping_cart__user=user
+            recipe_ingredients__recipe__shoppingcarts__user=user
         ).values(
             'name', 'measurement_unit'
         ).annotate(
             amount=Sum('recipe_ingredients__amount')
         ).order_by('name')
 
-        recipes = Recipe.objects.filter(shopping_cart__user=user)
+        recipes = Recipe.objects.filter(shoppingcarts__user=user)
 
         content = generate_shopping_list(user, ingredients, recipes)
 

@@ -1,6 +1,8 @@
 from django.contrib import admin
+from django.contrib.admin.widgets import AdminFileWidget
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
+from django.db import models
 from django.utils.safestring import mark_safe
 
 from .mixins import RecipeCountMixin
@@ -80,8 +82,29 @@ class RecipeIngredientInline(admin.TabularInline):
     extra = 1
 
 
+class AdminImageWidget(AdminFileWidget):
+    def render(self, name, value, attrs=None, renderer=None):
+        output = []
+        if value and getattr(value, "url", None):
+            image_url = value.url
+            output.append(
+                f'<a href="{image_url}" target="_blank">'
+                f'<img src="{image_url}" style="max-height: 100px; '
+                f'margin-right: 20px; vertical-align: middle;" />'
+                f'</a>'
+            )
+        output.append(super().render(name, value, attrs, renderer))
+        return mark_safe(
+            f'<div style="display: flex; align-items: center;">'
+            f'{"".join(output)}</div>'
+        )
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.ImageField: {'widget': AdminImageWidget},
+    }
     list_display = (
         'id', 'name', 'get_cooking_time', 'author',
         'favorites_count', 'get_ingredients', 'get_tags', 'get_image'
@@ -95,16 +118,6 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     list_filter = ('author', 'tags')
     inlines = (RecipeIngredientInline,)
-    fieldsets = (
-        (None, {
-            'fields': (
-                ('name', 'cooking_time'),
-                ('author', 'tags'),
-                'text',
-                'image',
-            )
-        }),
-    )
 
     @admin.display(description='Время (мин)')
     def get_cooking_time(self, obj):
