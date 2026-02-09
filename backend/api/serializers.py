@@ -45,9 +45,11 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 class UserSerializer(DjoserUserSerializer):
     """Сериализатор для пользователя."""
-    avatar = Base64ImageField(required=False, allow_null=True)
     is_subscribed = serializers.SerializerMethodField()
-    shopping_cart_count = serializers.SerializerMethodField()
+    shopping_cart_count = serializers.IntegerField(
+        source='shoppingcarts.count',
+        read_only=True
+    )
 
     class Meta(DjoserUserSerializer.Meta):
         fields = (
@@ -58,22 +60,17 @@ class UserSerializer(DjoserUserSerializer):
         )
         read_only_fields = fields
 
-    def get_is_subscribed(self, obj):
+    def get_is_subscribed(self, user):
         request = self.context.get('request')
 
         return (
             request
             and request.user.is_authenticated
             and (
-                getattr(obj, 'is_subscribed_annotated', False)
-                or obj.authors.filter(user=request.user).exists()
+                getattr(user, 'is_subscribed_annotated', False)
+                or user.authors.filter(user=request.user).exists()
             )
         )
-
-    def get_shopping_cart_count(self, obj):
-        if obj.is_anonymous:
-            return 0
-        return ShoppingCart.objects.filter(user=obj).count()
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -88,7 +85,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    text = serializers.CharField(source='description')
 
     class Meta:
         model = Recipe
@@ -133,7 +129,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all()
     )
     cooking_time = serializers.IntegerField(min_value=MIN_TIME)
-    text = serializers.CharField(source='description')
 
     class Meta:
         model = Recipe
@@ -189,14 +184,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ingredients_data = validated_data.pop('recipe_ingredients', [])
         tags_data = validated_data.pop('tags', [])
-
-        recipe = Recipe.objects.create(**validated_data)
-
-        if tags_data:
-            recipe.tags.set(tags_data)
-
-        if ingredients_data:
-            self.create_ingredients(recipe, ingredients_data)
+        recipe = super().create(validated_data)
+        recipe.tags.set(tags_data)
+        self.create_ingredients(recipe, ingredients_data)
 
         return recipe
 
@@ -205,19 +195,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         tags_data = validated_data.pop('tags', [])
         ingredients_data = validated_data.pop('recipe_ingredients', [])
 
-        if tags_data is not None:
-            instance.tags.set(tags_data)
+        instance.tags.set(tags_data)
+        instance.recipe_ingredients.all().delete()
+        self.create_ingredients(instance, ingredients_data)
 
-        if ingredients_data is not None:
-            instance.recipe_ingredients.all().delete()
-            self.create_ingredients(instance, ingredients_data)
-
-        if 'image' in validated_data and validated_data['image'] is None:
-            validated_data.pop('image')
-
-        instance = super().update(instance, validated_data)
-
-        return instance
+        return super().update(instance, validated_data)
 
 
 class RecipeShortSerializer(serializers.ModelSerializer):

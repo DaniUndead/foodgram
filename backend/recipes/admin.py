@@ -1,10 +1,12 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
+from recipes.mixins import RecipeCountMixin
 
 from .mixins import RecipeCountMixin
 from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
-                     ShoppingCart, Tag)
+                     ShoppingCart, Tag, User)
 
 admin.site.unregister(Group)
 
@@ -15,7 +17,6 @@ class TagAdmin(RecipeCountMixin, admin.ModelAdmin):
         'id', 'name', 'slug', *RecipeCountMixin.list_display
     )
     search_fields = ('name', 'slug')
-    recipe_relation_name = 'recipes'
 
 
 @admin.register(Ingredient)
@@ -27,7 +28,6 @@ class IngredientAdmin(RecipeCountMixin, admin.ModelAdmin):
         *RecipeCountMixin.list_display
     )
     search_fields = ('name',)
-    recipe_relation_name = 'recipes'
 
 
 class RecipeIngredientInline(admin.TabularInline):
@@ -75,7 +75,7 @@ class RecipeAdmin(admin.ModelAdmin):
     def get_image(self, recipe):
         if recipe.image:
             return f'<img src="{recipe.image.url}" width="80" height="60">'
-        return ""
+        return ''
 
 
 class BaseRecipeUserAdmin(admin.ModelAdmin):
@@ -102,3 +102,32 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
 class FollowAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'author')
     search_fields = ('user__username', 'author__username')
+
+
+try:
+    admin.site.unregister(User)
+except admin.sites.NotRegistered:
+    pass
+
+
+@admin.register(User)
+class UserAdmin(RecipeCountMixin, BaseUserAdmin):
+    list_display = (
+        'id',
+        'username',
+        'full_name',
+        'email',
+        'following_count',
+        'followers_count',
+        *RecipeCountMixin.list_display
+    )
+    list_filter = ('is_staff', 'is_active')
+
+    @admin.display(description='ФИО')
+    def full_name(self, user):
+        return f"{user.first_name} {user.last_name}".strip()
+
+    @admin.display(description='Подписок')
+    def following_count(self, user):
+        return user.followers.count()
+

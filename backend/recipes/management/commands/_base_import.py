@@ -13,13 +13,13 @@ class BaseImportCommand(BaseCommand):
         try:
             with open(f'data/{self.file_name}', 'r', encoding='utf-8') as f:
                 created_objects = self.model.objects.bulk_create(
-                    [self.model(**item) for item in json.load(f)],
+                    (self.model(**item) for item in json.load(f)),
                     ignore_conflicts=True
                 )
 
             self.stdout.write(self.style.SUCCESS(
                 f'Успешно! Файл: {self.file_name}. '
-                f'Обработано записей: {len(created_objects)}'
+                f'Добавлено записей: {len(created_objects)}'
             ))
 
         except Exception as e:

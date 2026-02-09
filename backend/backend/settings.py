@@ -13,7 +13,7 @@ SECRET_KEY = os.getenv(
     'django-insecure-fallback-key-for-dev-only'
 )
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
 
@@ -31,7 +31,6 @@ INSTALLED_APPS = [
     'djoser',
     'django_filters',
     'recipes',
-    'users',
     'api.apps.ApiConfig',
 ]
 
@@ -132,10 +131,7 @@ CORS_ORIGIN_WHITELIST = [
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://foooodgram.hopto.org',
-    'http://foooodgram.hopto.org',
-]
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost').split(',')
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

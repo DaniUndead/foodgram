@@ -64,7 +64,6 @@
     ```
 
 5.  **Загрузите ингредиенты и теги**
-    *(Если ваши команды управления называются иначе, например `import_csv`, используйте их)*
 
     ```bash
     docker-compose exec backend python manage.py load_ingredients
@@ -134,6 +133,7 @@
 После запуска проекта документация к API доступна по адресам:
 
 * [OpenAPI](http://localhost/api/docs/)
+* [Admin](http://localhost/admin/)
 
 ## Архитектура
 
