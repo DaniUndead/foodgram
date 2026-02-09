@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
-from recipes.mixins import RecipeCountMixin
 
 from .mixins import RecipeCountMixin
 from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
@@ -130,4 +129,3 @@ class UserAdmin(RecipeCountMixin, BaseUserAdmin):
     @admin.display(description='Подписок')
     def following_count(self, user):
         return user.followers.count()
-
