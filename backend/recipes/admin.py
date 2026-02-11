@@ -18,11 +18,13 @@ class IngredientInRecipesFilter(admin.SimpleListFilter):
     title = 'Используется в рецептах'
     parameter_name = 'used_in_recipes'
 
+    RECIPE_USAGE_CHOICES = (
+        ('yes', 'Да'),
+        ('no', 'Нет'),
+    )
+
     def lookups(self, request, model_admin):
-        return (
-            ('yes', 'Да'),
-            ('no', 'Нет'),
-        )
+        return self.RECIPE_USAGE_CHOICES
 
     def queryset(self, request, queryset):
         if self.value() == 'yes':
@@ -33,6 +35,54 @@ class IngredientInRecipesFilter(admin.SimpleListFilter):
         return queryset
 
 
+class HasRecipesFilter(admin.SimpleListFilter):
+    """Фильтр: Есть рецепты."""
+    title = 'Есть рецепты'
+    parameter_name = 'has_recipes'
+
+    def lookups(self, request, model_admin):
+        return (('yes', 'Да'), ('no', 'Нет'),)
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(recipes__isnull=False).distinct()
+        if self.value() == 'no':
+            return queryset.filter(recipes__isnull=True)
+        return queryset
+
+
+class HasSubscriptionsFilter(admin.SimpleListFilter):
+    """Фильтр: Есть подписки (пользователь подписан на кого-то)."""
+    title = 'Есть подписки'
+    parameter_name = 'has_subscriptions'
+
+    def lookups(self, request, model_admin):
+        return (('yes', 'Да'), ('no', 'Нет'),)
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(followers__isnull=False).distinct()
+        if self.value() == 'no':
+            return queryset.filter(followers__isnull=True)
+        return queryset
+
+
+class HasSubscribersFilter(admin.SimpleListFilter):
+    """Фильтр: Есть подписчики (на пользователя кто-то подписан)."""
+    title = 'Есть подписчики'
+    parameter_name = 'has_subscribers'
+
+    def lookups(self, request, model_admin):
+        return (('yes', 'Да'), ('no', 'Нет'),)
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(authors__isnull=False).distinct()
+        if self.value() == 'no':
+            return queryset.filter(authors__isnull=True)
+        return queryset
+
+
 @admin.register(User)
 class UserAdmin(RecipeCountMixin, BaseUserAdmin):
     list_display = (
@@ -40,10 +90,22 @@ class UserAdmin(RecipeCountMixin, BaseUserAdmin):
         'username',
         'full_name',
         'email',
+        'get_avatar',
         'following_count',
+        'subscribers_count',
         *RecipeCountMixin.list_display
     )
-    list_filter = ('is_staff', 'is_active')
+    list_filter = (
+        'is_staff', 
+        'is_active',
+        HasRecipesFilter,
+        HasSubscriptionsFilter,
+        HasSubscribersFilter,
+    )
+
+    fieldsets = BaseUserAdmin.fieldsets + (
+        (_('Extra'), {'fields': ('avatar',)}),
+    )
 
     @admin.display(description='ФИО')
     def full_name(self, user):
@@ -52,6 +114,17 @@ class UserAdmin(RecipeCountMixin, BaseUserAdmin):
     @admin.display(description='Подписок')
     def following_count(self, user):
         return user.followers.count()
+
+    @admin.display(description='Подписчиков')
+    def subscribers_count(self, user):
+        return user.authors.count()
+
+    @mark_safe
+    @admin.display(description='Аватар')
+    def get_avatar(self, user):
+        if user.avatar:
+            return f'<img src="{user.avatar.url}" width="50" height="50" style="border-radius: 50%;" />'
+        return 'Нет фото'
 
 
 @admin.register(Tag)
@@ -119,11 +192,9 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ('author', 'tags')
     inlines = (RecipeIngredientInline,)
 
-    @admin.display(description='Время (мин)')
+    @admin.display(description='Время (мин)', ordering='cooking_time')
     def get_cooking_time(self, obj):
         return obj.cooking_time
-
-    get_cooking_time.admin_order_field = 'cooking_time'
 
     @admin.display(description='В избранном')
     def favorites_count(self, recipe):

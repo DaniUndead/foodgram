@@ -59,7 +59,7 @@ class UserSerializer(DjoserUserSerializer):
             'avatar',
             'shopping_cart_count'
         )
-        read_only_fields = ('is_subscribed', 'shopping_cart_count')
+        read_only_fields = fields
 
     def get_is_subscribed(self, user):
         request = self.context.get('request')

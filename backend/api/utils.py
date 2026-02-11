@@ -8,15 +8,23 @@ from rest_framework import serializers
 def generate_shopping_list(user, ingredients, recipes):
     """Генерация текстового файла со списком покупок."""
 
+    today = datetime.now()
+    months = [
+        'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+        'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+    ]
+
+    current_date = f'{today.day:02d} {months[today.month - 1]} {today.year}'
+
     header = (
         f'Список покупок для: {user.get_full_name()} ({user.username})\n'
-        f'Дата составления: {datetime.now().strftime("%Y-%m-%d %H:%M")}\n'
+        f'Дата составления: {current_date}\n'
         f'{"="*30}\n'
     )
 
     ingredients_lines = [
-        f'{index}. {ingredient["name"].capitalize()}: '
-        f'{ingredient["amount"]} {ingredient["measurement_unit"]}'
+        f'{index}. {ingredient["name"].capitalize()} '
+        f'({ingredient["measurement_unit"]}) — {ingredient["amount"]}'
         for index, ingredient in enumerate(ingredients, start=1)
     ]
 
