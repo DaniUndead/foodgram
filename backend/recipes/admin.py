@@ -13,6 +13,22 @@ from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
 admin.site.unregister(Group)
 
 
+class AdminImageWidget(AdminFileWidget):
+
+    def render(self, name, value, attrs=None, renderer=None):
+        output = []
+        if value and getattr(value, "url", None):
+            image_url = value.url
+            output.append(
+                f'<a href="{image_url}" target="_blank">'
+                f'<img src="{image_url}" style="max-height: 100px; '
+                f'margin-bottom: 10px; border-radius: 5px;" />'
+                f'</a><br>'
+            )
+        output.append(super().render(name, value, attrs, renderer))
+        return mark_safe(''.join(output))
+
+
 class IngredientInRecipesFilter(admin.SimpleListFilter):
     """Фильтр для поиска ингредиентов, которые используются в рецептах."""
 
@@ -104,6 +120,10 @@ class UserAdmin(RecipeCountMixin, BaseUserAdmin):
         HasSubscribersFilter,
     )
 
+    formfield_overrides = {
+        models.ImageField: {'widget': AdminImageWidget},
+    }
+
     fieldsets = BaseUserAdmin.fieldsets + (
         (_('Extra'), {'fields': ('avatar',)}),
     )
@@ -157,24 +177,6 @@ class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
     min_num = 1
     extra = 1
-
-
-class AdminImageWidget(AdminFileWidget):
-    def render(self, name, value, attrs=None, renderer=None):
-        output = []
-        if value and getattr(value, "url", None):
-            image_url = value.url
-            output.append(
-                f'<a href="{image_url}" target="_blank">'
-                f'<img src="{image_url}" style="max-height: 100px; '
-                f'margin-right: 20px; vertical-align: middle;" />'
-                f'</a>'
-            )
-        output.append(super().render(name, value, attrs, renderer))
-        return mark_safe(
-            f'<div style="display: flex; align-items: center;">'
-            f'{"".join(output)}</div>'
-        )
 
 
 @admin.register(Recipe)
