@@ -4,6 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import Group
 from django.db import models
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 from .mixins import RecipeCountMixin
 from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
@@ -96,7 +97,7 @@ class UserAdmin(RecipeCountMixin, BaseUserAdmin):
         *RecipeCountMixin.list_display
     )
     list_filter = (
-        'is_staff', 
+        'is_staff',
         'is_active',
         HasRecipesFilter,
         HasSubscriptionsFilter,
@@ -123,7 +124,10 @@ class UserAdmin(RecipeCountMixin, BaseUserAdmin):
     @admin.display(description='Аватар')
     def get_avatar(self, user):
         if user.avatar:
-            return f'<img src="{user.avatar.url}" width="50" height="50" style="border-radius: 50%;" />'
+            return (
+                f'<img src="{user.avatar.url}" width="50" height="50" '
+                f'style="border-radius: 50%;" />'
+            )
         return 'Нет фото'
 
 
